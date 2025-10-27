@@ -118,17 +118,48 @@ handle_call(ram_copies, _From, State) ->
 	case mnesia:create_table(user1, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
-				fun(Record) -> mnesia:write(Record) end,
+				fun(Record) -> mnesia:write(user1,Record,write) end,
 				maps:get(init_records, State)
 			) end,
 			mnesia:transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(?MODULE, ram_copies_write, [maps:get(test_records,State)]),
-	{TimeRead, _} = timer:tc(?MODULE, ram_copies_read, [maps:get(test_records,State)]),
+	{TimeWrite, _} = timer:tc(?MODULE, mnesia_write, [user1, maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, mnesia_read, [user1, maps:get(test_records,State)]),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
+handle_call(disc_copies, _From, State) ->
+	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
+	case mnesia:create_table(user2, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set}]) of
+		{atomic, ok} ->
+			F = fun() -> lists:foreach(
+				fun(Record) -> mnesia:write(user2,Record,write) end,
+				maps:get(init_records, State)
+			) end,
+			mnesia:transaction(F);
+		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
+	end,
+
+	{TimeWrite, _} = timer:tc(?MODULE, mnesia_write, [user2, maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, mnesia_read, [user2, maps:get(test_records,State)]),
+	{reply, {ok, TimeWrite, TimeRead}, State};
+
+handle_call(disc_only_copies, _From, State) ->
+	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
+	case mnesia:create_table(user3, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set}]) of
+		{atomic, ok} ->
+			F = fun() -> lists:foreach(
+				fun(Record) -> mnesia:write(user3,Record,write) end,
+				maps:get(init_records, State)
+			) end,
+			mnesia:transaction(F);
+		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
+	end,
+
+	{TimeWrite, _} = timer:tc(?MODULE, mnesia_write, [user3, maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, mnesia_read, [user3, maps:get(test_records,State)]),
+	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(_Req, _From, State) ->
 	{reply, ok, State}.
@@ -188,17 +219,17 @@ dets_read(DetsSet, Records) ->
 	),
 	ok.
 
-ram_copies_write(Records) ->
+mnesia_write(TableName, Records) ->
 	F = fun() -> lists:foreach(
-		fun(Record) -> mnesia:write(Record) end,
+		fun(Record) -> mnesia:write(TableName, Record, write) end,
 		Records
 	) end,
 	mnesia:transaction(F),
 	ok.
 
-ram_copies_read(Records) ->
+mnesia_read(TableName,Records) ->
 	F = fun() -> lists:foreach(
-		fun(Record) -> mnesia:write(Record) end,
+		fun(Record) -> mnesia:read(TableName, Record#user.name) end,
 		Records
 	) end,
 	mnesia:transaction(F),
