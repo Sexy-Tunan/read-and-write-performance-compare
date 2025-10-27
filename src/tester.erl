@@ -85,10 +85,33 @@ handle_call(process, _From, State) ->
 		maps:get(init_records, State)
 	),
 
-	{TimeWrite, _} = timer:tc(?MODULE, process_write, [State]),
-	{TimeRead, _} = timer:tc(?MODULE, process_read, [State]),
+	{TimeWrite, _} = timer:tc(?MODULE, process_write, [maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, process_read, [maps:get(test_records,State)]),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
+handle_call(ets, _From, State) ->
+	%% 将一万条初始化记录插入ets
+	EtsSet = ets:new(user,[set,private,{keypos, #user.name}]),
+	lists:foreach(
+		fun(Record) -> ets:insert(EtsSet, Record) end,
+		maps:get(init_records, State)
+	),
+
+	{TimeWrite, _} = timer:tc(?MODULE, ets_write, [maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, ets_read, [maps:get(test_records,State)]),
+	{reply, {ok, TimeWrite, TimeRead}, State};
+
+handle_call(dets, _From, State) ->
+	%% 将一万条初始化记录插入ets
+	{ok, DetsSet} = dets:open_file(user, [{file,"data/user.dets"},{keypos, #user.name},{repair,true},{type,set}]),
+	lists:foreach(
+		fun(Record) -> dets:insert(DetsSet, Record) end,
+		maps:get(init_records, State)
+	),
+
+	{TimeWrite, _} = timer:tc(?MODULE, dets_write, [maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, dets_read, [maps:get(test_records,State)]),
+	{reply, {ok, TimeWrite, TimeRead}, State};
 
 
 handle_call(_Req, _From, State) ->
@@ -108,16 +131,43 @@ terminate(_Reason, _State) ->
 	mnesia:stop(),
 	ok.
 
-process_write(State) ->
+process_write(Records) ->
 	lists:foreach(
 		fun(Record) -> put(Record#user.name, Record) end,
-		State
+		Records
+	),
+	ok.
+process_read(Records) ->
+	lists:foreach(
+		fun(Record) -> get(Record#user.name) end,
+		Records
 	),
 	ok.
 
-process_read(State) ->
+ets_write(EtsSet, Records) ->
 	lists:foreach(
-		fun(Record) -> get(Record#user.name) end,
-		State
+		fun(Record) -> ets:insert(EtsSet, Record) end,
+		Records
+	),
+	ok.
+
+ets_read(EtsSet, Records) ->
+	lists:foreach(
+		fun(Record) -> ets:lookup(EtsSet, Record#user.name) end,
+		Records
+	),
+	ok.
+
+dets_write(DetsSet, Records) ->
+	lists:foreach(
+		fun(Record) -> dets:insert(DetsSet, Record) end,
+		Records
+	),
+	ok.
+
+dets_read(DetsSet, Records) ->
+	lists:foreach(
+		fun(Record) -> dets:lookup(DetsSet, Record#user.name) end,
+		Records
 	),
 	ok.
