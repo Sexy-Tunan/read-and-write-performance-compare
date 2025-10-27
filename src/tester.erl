@@ -102,7 +102,7 @@ handle_call(ets, _From, State) ->
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(dets, _From, State) ->
-	%% 将一万条初始化记录插入ets
+	%% 将一万条初始化记录插入dets
 	{ok, DetsSet} = dets:open_file(user, [{file,"data/user.dets"},{keypos, #user.name},{repair,true},{type,set}]),
 	lists:foreach(
 		fun(Record) -> dets:insert(DetsSet, Record) end,
@@ -111,6 +111,22 @@ handle_call(dets, _From, State) ->
 
 	{TimeWrite, _} = timer:tc(?MODULE, dets_write, [maps:get(test_records,State)]),
 	{TimeRead, _} = timer:tc(?MODULE, dets_read, [maps:get(test_records,State)]),
+	{reply, {ok, TimeWrite, TimeRead}, State};
+
+handle_call(ram_copies, _From, State) ->
+	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
+	case mnesia:create_table(user1, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set}]) of
+		{atomic, ok} ->
+			F = fun() -> lists:foreach(
+				fun(Record) -> mnesia:write(Record) end,
+				maps:get(init_records, State)
+			) end,
+			mnesia:transaction(F);
+		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
+	end,
+
+	{TimeWrite, _} = timer:tc(?MODULE, ram_copies_write, [maps:get(test_records,State)]),
+	{TimeRead, _} = timer:tc(?MODULE, ram_copies_read, [maps:get(test_records,State)]),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 
@@ -170,4 +186,20 @@ dets_read(DetsSet, Records) ->
 		fun(Record) -> dets:lookup(DetsSet, Record#user.name) end,
 		Records
 	),
+	ok.
+
+ram_copies_write(Records) ->
+	F = fun() -> lists:foreach(
+		fun(Record) -> mnesia:write(Record) end,
+		Records
+	) end,
+	mnesia:transaction(F),
+	ok.
+
+ram_copies_read(Records) ->
+	F = fun() -> lists:foreach(
+		fun(Record) -> mnesia:write(Record) end,
+		Records
+	) end,
+	mnesia:transaction(F),
 	ok.
