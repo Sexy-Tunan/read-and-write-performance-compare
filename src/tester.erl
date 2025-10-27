@@ -4,7 +4,7 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 24. 10月 2025 16:20
+%%% Created : 27. 10月 2025 15:00
 %%%-------------------------------------------------------------------
 -module(tester).
 -author("Administrator").
@@ -235,17 +235,25 @@ dets_read(DetsSet, Records) ->
 	ok.
 
 mnesia_write(TableName, Records) ->
-	F = fun() -> lists:foreach(
-		fun(Record) -> mnesia:write(TableName, Record, write) end,
+	lists:foreach(
+		fun(Record) -> mnesia:sync_transaction(fun() -> mnesia:write(TableName, Record, write) end) end,
 		Records
-	) end,
-	mnesia:sync_transaction(F),
+	),
+%%	F = fun() -> lists:foreach(
+%%		fun(Record) -> mnesia:write(TableName, Record, write) end,
+%%		Records
+%%	) end,
+%%	mnesia:sync_transaction(F),
 	ok.
 
 mnesia_read(TableName,Records) ->
-	F = fun() -> lists:foreach(
-		fun(Record) -> mnesia:read(TableName, Record#user.name) end,
+	lists:foreach(
+		fun(Record) -> mnesia:sync_transaction(fun() -> mnesia:read(TableName, Record#user.name) end) end,
 		Records
-	) end,
-	mnesia:sync_transaction(F),
+	),
+%%	F = fun() -> lists:foreach(
+%%		fun(Record) -> mnesia:read(TableName, Record#user.name) end,
+%%		Records
+%%	) end,
+%%	mnesia:sync_transaction(F),
 	ok.

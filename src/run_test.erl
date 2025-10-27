@@ -10,7 +10,7 @@
 -author("Administrator").
 
 %% API
--export([run/0]).
+-export([run/0, stop/0]).
 
 
 run() ->
