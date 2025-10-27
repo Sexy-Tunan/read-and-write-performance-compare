@@ -1,0 +1,9 @@
+{application, read_write_test,
+	[{description, "不同存储的读写测试"},
+		{vsn, "1.0"},
+		{modules, [tester]},
+		{registered,[tester]},
+		{applications, [kernel,stdlib]},
+		{mod, {read_write_test_app,[]}},
+		{start_phases, []}
+	]}.

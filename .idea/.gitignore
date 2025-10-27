@@ -1,0 +1,11 @@
+# 默认忽略的文件
+/shelf/
+/workspace.xml
+
+./*.xml
+
+# 忽略build目录
+../_build/*
+
+# 忽略临时文件
+*.log
