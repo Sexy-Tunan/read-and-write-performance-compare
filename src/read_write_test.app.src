@@ -2,7 +2,7 @@
 	[{description, "不同存储的读写测试"},
 		{vsn, "1.0"},
 		{modules, [tester]},
-		{registered,[tester]},
+		{registered,[tester,read_write_test_sup]},
 		{applications, [kernel,stdlib]},
 		{mod, {read_write_test_app,[]}},
 		{start_phases, []}

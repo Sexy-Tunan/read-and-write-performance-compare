@@ -16,7 +16,7 @@
 
 
 start(_Type, _Args) ->
-	tester:start().
+	read_write_test_sup:start_link().
 
 stop(_State) ->
 	ok.

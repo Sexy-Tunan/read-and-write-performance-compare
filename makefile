@@ -1,4 +1,4 @@
-PROJECT = mnesia_test
+PROJECT = read_write_test
 REBAR = rebar3
 EBIN = _build/default/lib/$(PROJECT)/ebin
 
@@ -24,7 +24,7 @@ shell:
 restart: clean-db
 	@$(REBAR) clean
 	@$(REBAR) compile
-	@erl -sname tester -pa _build/default/lib/*/ebin -eval "application:ensure_all_started($(PROJECT)), application:start($(PROJECT)), run_test:run()"
+	@erl -sname tester -pa _build/default/lib/*/ebin -eval "application:ensure_all_started($(PROJECT)), application:start($(PROJECT)), run_test:run()."
 
 
 # 清理
@@ -36,6 +36,7 @@ clean:
 clean-db:
 	@echo "清理 Mnesia 数据库文件..."
 	@rm -rf Mnesia.*
+	@rm -f data/user.dets
 	@echo "数据库文件已清理"
 
 clean-all: clean clean-db
