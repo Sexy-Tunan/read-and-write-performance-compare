@@ -52,7 +52,27 @@ run() ->
 	io:format("写入一万条数据所消耗时间: ~p 微秒~n", [DiscOnlyCopiesWriteTime]),
 	io:format("读取一万条数据所消耗时间: ~p 微秒~n~n~n", [DiscOnlyCopiesReadTime]),
 
+	io:format("===========ram_copies脏读写一万条数据性能===============~n"),
+	{ok, DirtyRamWriteTime, DirtyRamReadTime} = tester:test_ram_copies_read_write_with_dirty(),
+	io:format("ram_copies在已有1万条数据情况下: ~n"),
+	io:format("脏写入一万条数据所消耗时间: ~p 微秒~n", [DirtyRamWriteTime]),
+	io:format("脏读取一万条数据所消耗时间: ~p 微秒~n~n~n", [DirtyRamReadTime]),
+
+	io:format("===========disc_copies脏读写一万条数据性能===============~n"),
+	{ok, DirtyDiscCopiesWriteTime, DirtyDiscCopiesReadTime} = tester:test_disc_copies_read_write_with_dirty(),
+	io:format("disc_copies在已有1万条数据情况下: ~n"),
+	io:format("脏写入一万条数据所消耗时间: ~p 微秒~n", [DirtyDiscCopiesWriteTime]),
+	io:format("脏读取一万条数据所消耗时间: ~p 微秒~n~n~n", [DirtyDiscCopiesReadTime]),
+
+	io:format("===========disc_only_copies脏读写一万条数据性能===============~n"),
+	{ok, DirtyDiscOnlyCopiesWriteTime, DirtyDiscOnlyCopiesReadTime} = tester:test_disc_only_copies_read_write_with_dirty(),
+	io:format("disc_only_copies在已有1万条数据情况下: ~n"),
+	io:format("脏写入一万条数据所消耗时间: ~p 微秒~n", [DirtyDiscOnlyCopiesWriteTime]),
+	io:format("脏读取一万条数据所消耗时间: ~p 微秒~n~n~n", [DirtyDiscOnlyCopiesReadTime]),
+
 	ok.
 
+%%run_test() ->
+%%	mnesia:create_table()
 stop() ->
 	application:stop(read_write_test).

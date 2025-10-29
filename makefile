@@ -36,7 +36,7 @@ clean:
 clean-db:
 	@echo "清理 Mnesia 数据库文件..."
 	@rm -rf Mnesia.*
-	@rm -f data/user.dets
+	@rm -rf data/user.dets
 	@echo "数据库文件已清理"
 
 clean-all: clean clean-db
