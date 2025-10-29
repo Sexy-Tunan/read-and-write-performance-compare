@@ -129,13 +129,13 @@ handle_call(dets, _From, State) ->
 
 handle_call(ram_copies, _From, State) ->
 	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user1, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set}]) of
+	case mnesia:create_table(user1, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user1,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -144,14 +144,14 @@ handle_call(ram_copies, _From, State) ->
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(disc_copies, _From, State) ->
-	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user2, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set}]) of
+	%% 将一万条初始化记录插入mnesia中，模式为disc_copies
+	case mnesia:create_table(user2, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user2,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -160,14 +160,14 @@ handle_call(disc_copies, _From, State) ->
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(disc_only_copies, _From, State) ->
-	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user3, [{attributes, record_info(fields,user)},{disc_only_copies, [node()]},{type,set}]) of
+	%% 将一万条初始化记录插入mnesia中，模式为disc_only_copies
+	case mnesia:create_table(user3, [{attributes, record_info(fields,user)},{disc_only_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user3,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -177,32 +177,29 @@ handle_call(disc_only_copies, _From, State) ->
 
 handle_call({ram_copies, dirty_read_write}, _From, State) ->
 	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user4, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set}]) of
+	case mnesia:create_table(user4, [{attributes, record_info(fields,user)},{ram_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
-			io:format("啦啦啦1~n"),
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user4,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	io:format("啦啦啦2~n"),
 	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user4, maps:get(test_records,State)) end, microsecond ),
-	io:format("啦啦啦3~n"),
 	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user4, maps:get(test_records,State)) end, microsecond ),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call({disc_copies, dirty_read_write}, _From, State) ->
-	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user5, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set}]) of
+	%% 将一万条初始化记录插入mnesia中，模式为disc_copies
+	case mnesia:create_table(user5, [{attributes, record_info(fields,user)},{disc_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user5,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -211,14 +208,14 @@ handle_call({disc_copies, dirty_read_write}, _From, State) ->
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call({disc_only_copies, dirty_read_write}, _From, State) ->
-	%% 将一万条初始化记录插入mnesia中，模式为ram_copies
-	case mnesia:create_table(user6, [{attributes, record_info(fields,user)},{disc_only_copies, [node()]},{type,set}]) of
+	%% 将一万条初始化记录插入mnesia中，模式为disc_only_copies
+	case mnesia:create_table(user6, [{attributes, record_info(fields,user)},{disc_only_copies, [node()]},{type,set},{record_name,user}]) of
 		{atomic, ok} ->
 			F = fun() -> lists:foreach(
 				fun(Record) -> mnesia:write(user6,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:sync_transaction(F);
+			mnesia:activity(transaction, F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -312,9 +309,7 @@ mnesia_read(TableName,Records) ->
 
 mnesia_dirty_write(TableName, Records) ->
 	lists:foreach(
-		fun(Record) ->
-			io:format("===~p~n", [TableName]),
-			mnesia:dirty_write(TableName, Record) end,
+		fun(Record) -> mnesia:dirty_write(TableName, Record) end,
 		Records
 	),
 	ok.
