@@ -98,8 +98,8 @@ handle_call(process, _From, State) ->
 
 %%	{TimeWrite, _} = timer:tc(?MODULE, process_write, [maps:get(test_records,State)], millisecond),
 %%	{TimeRead, _} = timer:tc(?MODULE, process_read, [maps:get(test_records,State)], millisecond),ond),
-	{TimeWrite, _} = timer:tc(fun() -> process_write(maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> process_read(maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> process_write(maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> process_read(maps:get(test_records,State)) end),
 	erase(),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
@@ -111,8 +111,8 @@ handle_call(ets, _From, State) ->
 		maps:get(init_records, State)
 	),
 
-	{TimeWrite, _} = timer:tc(fun() -> ets_write(EtsSet, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> ets_read(EtsSet, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> ets_write(EtsSet, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> ets_read(EtsSet, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(dets, _From, State) ->
@@ -123,8 +123,8 @@ handle_call(dets, _From, State) ->
 		maps:get(init_records, State)
 	),
 
-	{TimeWrite, _} = timer:tc(fun() -> dets_write(DetsSet, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> dets_read(DetsSet, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> dets_write(DetsSet, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> dets_read(DetsSet, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(ram_copies, _From, State) ->
@@ -139,8 +139,8 @@ handle_call(ram_copies, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user1, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user1, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user1, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user1, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(disc_copies, _From, State) ->
@@ -155,8 +155,8 @@ handle_call(disc_copies, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user2, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user2, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user2, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user2, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(disc_only_copies, _From, State) ->
@@ -171,8 +171,8 @@ handle_call(disc_only_copies, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user3, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user3, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_write(user3, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_read(user3, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call({ram_copies, dirty_read_write}, _From, State) ->
@@ -187,8 +187,8 @@ handle_call({ram_copies, dirty_read_write}, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user4, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user4, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user4, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user4, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call({disc_copies, dirty_read_write}, _From, State) ->
@@ -203,8 +203,8 @@ handle_call({disc_copies, dirty_read_write}, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user5, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user5, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user5, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user5, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call({disc_only_copies, dirty_read_write}, _From, State) ->
@@ -219,8 +219,8 @@ handle_call({disc_only_copies, dirty_read_write}, _From, State) ->
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
-	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user6, maps:get(test_records,State)) end, microsecond ),
-	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user6, maps:get(test_records,State)) end, microsecond ),
+	{TimeWrite, _} = timer:tc(fun() -> mnesia_dirty_write(user6, maps:get(test_records,State)) end),
+	{TimeRead, _} = timer:tc(fun() -> mnesia_dirty_read(user6, maps:get(test_records,State)) end),
 	{reply, {ok, TimeWrite, TimeRead}, State};
 
 handle_call(_Req, _From, State) ->
