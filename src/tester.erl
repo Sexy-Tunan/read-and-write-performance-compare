@@ -135,7 +135,7 @@ handle_call(ram_copies, _From, State) ->
 				fun(Record) -> mnesia:write(user1,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -151,7 +151,7 @@ handle_call(disc_copies, _From, State) ->
 				fun(Record) -> mnesia:write(user2,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -167,7 +167,7 @@ handle_call(disc_only_copies, _From, State) ->
 				fun(Record) -> mnesia:write(user3,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -183,7 +183,7 @@ handle_call({ram_copies, dirty_read_write}, _From, State) ->
 				fun(Record) -> mnesia:write(user4,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -199,7 +199,7 @@ handle_call({disc_copies, dirty_read_write}, _From, State) ->
 				fun(Record) -> mnesia:write(user5,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -215,7 +215,7 @@ handle_call({disc_only_copies, dirty_read_write}, _From, State) ->
 				fun(Record) -> mnesia:write(user6,Record,write) end,
 				maps:get(init_records, State)
 			) end,
-			mnesia:activity(transaction, F);
+			mnesia:sync_transaction(F);
 		{aborted, Reason} -> io:format("建表失败，原因：[~p]", [Reason])
 	end,
 
@@ -237,7 +237,7 @@ handle_cast(_Msg, State) ->
 	{noreply, State}.
 
 terminate(_Reason, _State) ->
-%%	mnesia:stop(),
+	mnesia:stop(),
 	io:format("termanate停止应用~n"),
 	ok.
 
